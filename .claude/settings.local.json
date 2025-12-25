@@ -3,7 +3,8 @@
     "allow": [
       "Bash(pnpm run dev:*)",
       "Bash(pnpm install:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(pnpm approve-builds:*)"
     ]
   }
 }
