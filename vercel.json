@@ -11,7 +11,7 @@
     },
     {
       "source": "/assets/:path*",
-      "destination": "/dist/public/:url"
+      "destination": "/dist/public/assets/:path*"
     },
     {
       "source": "/(.*)",
