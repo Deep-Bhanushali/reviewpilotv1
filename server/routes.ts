@@ -70,17 +70,6 @@ async function createOrderNotifications(userId: string, order: Order, event: 'cr
         });
       }
 
-      // Info: Review completed
-      if (status === "Review & Rating Completed") {
-        await storage.createNotification(userId, {
-          orderId: order.id,
-          type: "Success",
-          reminderCategory: "Review_Rating",
-          title: "Review Completed",
-          message: `Review for ${order.productName} has been submitted successfully`
-        });
-      }
-
       // Success: Refunded
       if (status === "Refunded") {
         await storage.createNotification(userId, {
@@ -686,13 +675,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       ];
       
       for (const field of dateFields) {
-        if (orderData[field.key] && orderData[field.key] !== existingOrder[field.key]) {
+        if ((orderData as any)[field.key] && (orderData as any)[field.key] !== (existingOrder as any)[field.key]) {
           await storage.createActivityLog(userId, {
             orderId: order.id,
             activityType: "Dates Modified",
             description: `${field.label} updated`,
-            oldValue: existingOrder[field.key]?.toString() || 'Not set',
-            newValue: orderData[field.key].toString(),
+            oldValue: (existingOrder as any)[field.key]?.toString() || 'Not set',
+            newValue: (orderData as any)[field.key].toString(),
             triggeredBy: "User"
           });
           changes.push(field.key);
@@ -709,8 +698,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           orderId: order.id,
           activityType: "Order Updated",
           description: `Order details updated: ${otherChanges.join(', ')}`,
-          oldValue: JSON.stringify(Object.fromEntries(otherChanges.map(k => [k, existingOrder[k]]))),
-          newValue: JSON.stringify(Object.fromEntries(otherChanges.map(k => [k, orderData[k]]))),
+          oldValue: JSON.stringify(Object.fromEntries(otherChanges.map(k => [k, (existingOrder as any)[k]]))),
+          newValue: JSON.stringify(Object.fromEntries(otherChanges.map(k => [k, (orderData as any)[k]]))),
           triggeredBy: "User"
         });
       }

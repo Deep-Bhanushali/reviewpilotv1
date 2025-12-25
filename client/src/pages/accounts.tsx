@@ -110,15 +110,15 @@ export default function Accounts() {
   }
 
   // Calculate stats for each account
-  const accountsWithStats = accounts.map((account: Account) => {
+  const accountsWithStats = (accounts as Account[]).map((account: Account) => {
     const accountOrders = (orders as OrderWithRelations[]).filter(order => order.accountId === account.id);
-    const activeOrders = accountOrders.filter(order => 
+    const activeOrders = accountOrders.filter(order =>
       !["Refunded", "Cancelled"].includes(order.currentStatus)
     );
-    
+
     const totalInvestment = activeOrders.reduce((sum, order) => sum + order.orderAmount, 0);
     const pendingAmount = activeOrders.reduce((sum, order) => sum + order.refundAmount, 0);
-    
+
     return {
       ...account,
       stats: {
@@ -131,9 +131,9 @@ export default function Accounts() {
   });
 
   // Filter accounts
-  const filteredAccounts = accountsWithStats.filter((account) => {
+  const filteredAccounts = accountsWithStats.filter((account: any) => {
     const matchesPlatform = !filters.platform || filters.platform === "all" || account.platform === filters.platform;
-    const matchesSearch = !filters.search || 
+    const matchesSearch = !filters.search ||
       account.name.toLowerCase().includes(filters.search.toLowerCase()) ||
       account.email.toLowerCase().includes(filters.search.toLowerCase()) ||
       account.phone.includes(filters.search);
@@ -142,7 +142,7 @@ export default function Accounts() {
   });
 
   // Sort by active orders (highest first)
-  filteredAccounts.sort((a, b) => b.stats.activeOrders - a.stats.activeOrders);
+  filteredAccounts.sort((a: any, b: any) => b.stats.activeOrders - a.stats.activeOrders);
 
   return (
     <MainLayout>
@@ -226,10 +226,10 @@ export default function Accounts() {
                 <Plus className="w-6 h-6 lg:w-8 lg:h-8 text-muted-foreground" />
               </div>
               <h3 className="text-base lg:text-lg font-semibold mb-2">
-                {accounts.length === 0 ? "No accounts yet" : "No accounts found"}
+                {(accounts as Account[]).length === 0 ? "No accounts yet" : "No accounts found"}
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
-                {accounts.length === 0 
+                {(accounts as Account[]).length === 0
                   ? "Add your first e-commerce account to start managing orders"
                   : "Try adjusting your filters or add a new account"
                 }
@@ -245,7 +245,7 @@ export default function Accounts() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6">
-            {filteredAccounts.map((account, index) => (
+            {filteredAccounts.map((account: any, index: number) => (
               <div key={account.id} className="stagger-item">
                 <AccountCard
                   account={account}

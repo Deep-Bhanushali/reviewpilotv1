@@ -279,6 +279,7 @@ export class DatabaseStorage implements IStorage {
         refundFormLink: orders.refundFormLink,
         comments: orders.comments,
         currentStatus: orders.currentStatus,
+        calendarEventIds: orders.calendarEventIds,
         createdAt: orders.createdAt,
         updatedAt: orders.updatedAt,
         mediator: {
@@ -330,7 +331,7 @@ export class DatabaseStorage implements IStorage {
       conditions.push(eq(orders.accountId, filters.accountId));
     }
 
-    query = query.where(and(...conditions));
+    query = query.where(and(...conditions)) as any;
 
     const result = await query.orderBy(desc(orders.createdAt));
 
@@ -338,7 +339,7 @@ export class DatabaseStorage implements IStorage {
       ...row,
       mediator: row.mediator!,
       account: row.account!,
-    }));
+    })) as any;
   }
 
   async getOrder(id: string, userId: string): Promise<OrderWithRelations | undefined> {
@@ -361,6 +362,7 @@ export class DatabaseStorage implements IStorage {
         refundFormLink: orders.refundFormLink,
         comments: orders.comments,
         currentStatus: orders.currentStatus,
+        calendarEventIds: orders.calendarEventIds,
         createdAt: orders.createdAt,
         updatedAt: orders.updatedAt,
         mediator: {
@@ -395,7 +397,7 @@ export class DatabaseStorage implements IStorage {
       ...result,
       mediator: result.mediator!,
       account: result.account!,
-    };
+    } as any;
   }
 
   async createOrder(userId: string, order: InsertOrder): Promise<Order> {
@@ -558,7 +560,7 @@ export class DatabaseStorage implements IStorage {
       totalInvestment: totalInvestmentResult[0]?.amount || 0,
       totalOrders: totalOrdersResult[0]?.count || 0,
       totalPendingRefund: pendingRefundsResult[0]?.amount || 0,
-      pendingByBankAccount: pendingByBankAccountResult,
+      pendingByBankAccount: pendingByBankAccountResult as any,
     };
   }
 
@@ -689,7 +691,7 @@ export class DatabaseStorage implements IStorage {
     return result.map(row => ({
       ...row,
       order: row.order || undefined,
-    }));
+    })) as any;
   }
 
   async createNotification(userId: string, notification: InsertNotification): Promise<Notification> {
@@ -804,7 +806,7 @@ export class DatabaseStorage implements IStorage {
     return result.map(row => ({
       ...row,
       order: row.order || undefined,
-    }));
+    })) as any;
   }
 
   async getAllActivityLogs(userId: string, filters?: {
@@ -857,19 +859,19 @@ export class DatabaseStorage implements IStorage {
       conditions.push(eq(activityLogs.activityType, filters.activityType));
     }
     
-    query = query.where(and(...conditions));
-    query = query.orderBy(desc(activityLogs.createdAt));
+    query = query.where(and(...conditions)) as any;
+    query = query.orderBy(desc(activityLogs.createdAt)) as any;
 
     if (filters?.limit) {
-      query = query.limit(filters.limit);
+      query = query.limit(filters.limit) as any;
     }
 
     const result = await query;
-    
+
     return result.map(row => ({
       ...row,
       order: row.order || undefined,
-    }));
+    })) as any;
   }
 }
 

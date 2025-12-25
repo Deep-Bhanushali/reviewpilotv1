@@ -15,7 +15,7 @@ export function getSession() {
   const pgStore = connectPg(session);
 
   const store = new pgStore({
-    pool,
+    pool: pool as any,
     createTableIfMissing: false,
     ttl: sessionTtl,
     tableName: "sessions",

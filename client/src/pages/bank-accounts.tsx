@@ -86,7 +86,7 @@ export default function BankAccounts() {
               </Card>
             ))}
           </div>
-        ) : bankAccounts.length === 0 ? (
+        ) : (bankAccounts as any[]).length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
               <Building2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
@@ -102,7 +102,7 @@ export default function BankAccounts() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {bankAccounts.map((account: any) => (
+            {(bankAccounts as any[]).map((account: any) => (
               <Card key={account.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">

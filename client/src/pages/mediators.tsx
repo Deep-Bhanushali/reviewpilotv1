@@ -51,12 +51,12 @@ export default function Mediators() {
   }
 
   // Calculate stats for each mediator
-  const mediatorsWithStats = mediators.map((mediator: any) => {
-    const mediatorOrders = orders.filter((order: any) => order.mediatorId === mediator.id);
-    const activeOrders = mediatorOrders.filter((order: any) => 
+  const mediatorsWithStats = (mediators as any[]).map((mediator: any) => {
+    const mediatorOrders = (orders as any[]).filter((order: any) => order.mediatorId === mediator.id);
+    const activeOrders = mediatorOrders.filter((order: any) =>
       !["Refunded", "Cancelled"].includes(order.currentStatus)
     );
-    const refundedOrders = mediatorOrders.filter((order: any) => 
+    const refundedOrders = mediatorOrders.filter((order: any) =>
       order.currentStatus === "Refunded"
     );
     
@@ -183,7 +183,7 @@ export default function Mediators() {
       </header>
 
       <div className="p-4 lg:p-8">
-        {mediators.length === 0 ? (
+        {(mediators as any[]).length === 0 ? (
           <div className="text-center py-8 lg:py-12">
             <div className="max-w-md mx-auto px-4">
               <div className="w-12 h-12 lg:w-16 lg:h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-4">

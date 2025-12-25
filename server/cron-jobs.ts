@@ -9,7 +9,7 @@ import { format, addDays, differenceInDays, startOfDay, endOfDay, subDays } from
  * Runs scheduled tasks to check and update orders based on dates
  */
 class CronJobService {
-  private tasks: cron.ScheduledTask[] = [];
+  private tasks: any[] = [];
   private isRunning = false;
 
   /**
@@ -26,17 +26,11 @@ class CronJobService {
     // Run every hour (at minute 0)
     const hourlyTask = cron.schedule('0 * * * *', () => {
       this.runHourlyChecks();
-    }, {
-      scheduled: true,
-      timezone: process.env.TZ || 'Asia/Kolkata'
     });
 
     // Run daily at 9:00 AM
     const dailyTask = cron.schedule('0 9 * * *', () => {
       this.runDailyChecks();
-    }, {
-      scheduled: true,
-      timezone: process.env.TZ || 'Asia/Kolkata'
     });
 
     this.tasks.push(hourlyTask, dailyTask);

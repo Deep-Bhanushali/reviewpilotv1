@@ -94,7 +94,7 @@ export function Sidebar() {
       <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-border">
         <div className="flex items-center space-x-3">
           <Avatar className="w-8 h-8">
-            <AvatarImage src={user?.profileImageUrl} alt="User avatar" />
+            <AvatarImage src={user?.profileImageUrl ?? undefined} alt="User avatar" />
             <AvatarFallback>
               {((user?.firstName?.[0] ?? (user?.email as string)?.[0]) ?? "U")}
             </AvatarFallback>
