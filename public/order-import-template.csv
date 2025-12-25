@@ -1,0 +1,3 @@
+Product Name,Platform,Account Name,Order ID,Order Amount,Refund Amount,Product Link,Mediator Name,Bank Account Name,Order Date,Delivery Date,Refund Form Date,Remind Refund Date,Status
+Sample iPhone Case,Amazon,My Amazon Account,ORD123456,1500,1500,https://amazon.in/product,John Mediator,HDFC Savings,2024-01-15,2024-01-18,2024-01-25,2024-01-30,Ordered
+Sample Headphones,Flipkart,Flipkart Store Account,ORD789012,2500,2500,https://flipkart.com/headphones,Jane Mediator,ICICI Current,2024-01-20,2024-01-23,2024-01-28,2024-02-02,Delivered

@@ -1,0 +1,452 @@
+# Online Reviewer System - Non-Functional Requirements & User Journey Document ## 1. Executive Summary ### 1.1 System Purpose
+The Online Reviewer System is a comprehensive platform that facilitates a review-based earning model where users purchase products through mediators, submit reviews on e-commerce platforms, and receive refunds (typically 90% of the purchase amount). The system manages the entire lifecycle from order placement to refund completion.
+
+### 1.2 Business Model
+
+User → Mediator → Order Product → Receive Product → Submit Review → Get Refund
+         ↓
+    Commission/Fee
+### 1.3 System Currency
+PRIMARY CURRENCY: Indian Rupees (INR) - ₹
+
+Storage Format: Integer (in paise) to avoid floating point errors
+Display Format: ₹X,XX,XXX with Indian numbering system
+Example: Store 800000 (paise) → Display ₹8,000
+### 1.4 Key Stakeholders
+Primary Users: Individuals who order and review products
+Mediators: Third-party dealers who provide product deals and handle refunds
+Platform: System administrators managing the overall platform
+## 2. User Personas & Journeys ### 2.1 Primary User Persona: "Review Earner"
+Profile:
+
+Age: 18-45 years
+Tech-savvy individuals looking for supplementary income
+Active on multiple e-commerce platforms
+Manages 10-50 orders monthly
+Goals:
+
+Maximize earnings through reviews
+Track multiple orders efficiently
+Ensure timely refund collection
+Maintain good relationships with mediators
+### 2.2 Complete User Journey Map #### Journey 1: New User Onboarding
+
+1. User discovers platform through mediator
+2. Creates account (email, password, name)
+3. Adds e-commerce platform accounts (Amazon, Flipkart, etc.)
+4. Adds mediator details (name, WhatsApp)
+5. Views dashboard with empty state
+6. Ready to place first order
+#### Journey 2: Order Placement Flow
+
+1. User receives deal from mediator (via WhatsApp)
+2. Opens app → Clicks "New Order"
+3. Fills order details:
+   - Selects platform (Amazon/Flipkart/etc.)
+   - Selects account (auto-filtered by platform)
+   - Enters product details
+   - Enters amounts (order & expected refund)
+   - Assigns mediator
+4. Places actual order on e-commerce platform
+5. Updates order status to "Ordered"
+6. System generates notifications for tracking
+#### Journey 3: Order Fulfillment Flow
+
+1. Product delivered → Updates status to "Delivered"
+2. User reviews product on platform → Updates to "Deliverables Done"
+3. User submits refund form → Updates to "Refund Form Done"
+4. System tracks refund timeline
+5. If delayed → Auto-updates to "Overdue Passed for Refund Form"
+6. User follows up with mediator → "Remind Mediator for Payment"
+7. Receives refund → Updates to "Refunded"
+8. Order cycle complete
+#### Journey 4: Monitoring & Management
+
+Daily Activities:
+- Check dashboard for pending actions
+- Review notifications for due dates
+- Update order statuses
+- Message mediators for follow-ups
+- Export data for records
+
+Weekly Activities:
+- Review earnings summary
+- Analyze mediator performance
+- Clean up completed orders
+- Plan upcoming orders
+## 3. Screen Specifications & Components ### 3.1 Authentication Screens #### 3.1.1 Login Screen
+Purpose: Authenticate existing users into the system
+
+| Component | Type | Required | Validation | Description | |-----------|------|----------|------------|-------------| | Email | Email Input | Yes | Valid email format | User's registered email | | Password | Password Input | Yes | Min 6 characters | User's password | | Show Password | Toggle | No | - | Toggle password visibility | | Remember Me | Checkbox | No | - | Keep user logged in | | Login Button | Submit | - | All fields valid | Submit credentials | | Forgot Password | Link | - | - | Navigate to reset | | Sign Up Link | Link | - | - | Navigate to register | #### 3.1.2 Register Screen
+Purpose: Create new user account
+
+| Component | Type | Required | Validation | Description | |-----------|------|----------|------------|-------------| | Full Name | Text Input | Yes | Min 3 characters | User's full name | | Email | Email Input | Yes | Valid email, unique | Email for login | | Password | Password Input | Yes | Min 6 characters | Account password | | Confirm Password | Password Input | Yes | Matches password | Password confirmation | | Terms Checkbox | Checkbox | Yes | Must be checked | Accept terms | | Register Button | Submit | - | All fields valid | Create account | | Login Link | Link | - | - | Navigate to login | ### 3.2 Dashboard Screen
+Purpose: Overview of user's review business with key metrics and quick actions
+
+#### 3.2.1 Quick Action Buttons Section | Button | Action | Navigation | |--------|--------|------------| | New Order | Create new order | Orders → Add Order Form | | Submit Review | Mark review complete | Orders → Update Status | | Request Refund | Submit refund form | Orders → Update Status | #### 3.2.2 Monthly Statistics Cards (Top Row) | Metric | Calculation | Display Format | Color | |--------|------------|----------------|-------| | Monthly Earnings | Sum of (RefundAmount - OrderAmount) for current month where Status = "Refunded" | ₹X,XX,XXX | Green gradient | | Monthly Orders | Count of orders created this month | Number | Blue gradient | | Completed Reviews | Count where Status IN ["Refund Form Done", "Refunded"] this month | Number | Purple gradient | | Pending Refunds | Sum of RefundAmount where Status NOT IN ["Refunded", "Cancelled"] | ₹X,XX,XXX | Orange gradient | #### 3.2.3 Total Statistics Cards (Second Row) | Metric | Calculation | Display Format | |--------|------------|----------------| | Total Investments | Sum of all OrderAmounts (lifetime) | ₹X,XX,XXX | | Total Orders Count | Count of all orders (lifetime) | Number | | Total Pending Refund | Sum of RefundAmount where Status NOT IN ["Refunded", "Cancelled"] | ₹X,XX,XXX | #### 3.2.4 Recent Notifications Panel | Field | Description | Max Items | |-------|-------------|-----------| | Notification Type Icon | Critical/Warning/Info/Success | 5 latest | | Title | Brief notification title | - | | Message | Detailed message | - | | Time | Relative time (2h ago) | - | | Action Button | View/Dismiss | - | #### 3.2.5 Recent Orders Panel | Field | Display | Max Items | |-------|---------|-----------| | Product Name | Full product name | 3 latest | | Platform | Amazon/Flipkart/etc | - | | Order Amount | ₹X,XXX | - | | Refund Amount | ₹X,XXX | - | | Status | Color-coded badge | - | | Mediator | Mediator name | - | | Delivery Date | DD/MM/YYYY | - | #### 3.2.6 Upcoming Refund Forms Panel | Field | Display | Highlight | |-------|---------|-----------| | Product Name | Full name | - | | Due Date | DD/MM/YYYY | Red if overdue | | Days Remaining | X days left | Orange if < 3 days | | Expected Refund | ₹X,XXX | - | | Fill Form Button | Action button | - | ### 3.3 Order Management Screens #### 3.3.1 Orders List Screen
+Purpose: View and manage all orders with filtering capabilities
+
+Filter Bar Components:
+
+| Filter | Type | Options | |--------|------|---------| | Status Filter | Dropdown | All, Ordered, Delivered, Deliverables Done, Refund Form Done, Overdue, Remind Mediator, Refunded, Cancelled | | Mediator Filter | Dropdown | All mediators from list | | Platform Filter | Dropdown | All, Amazon, Flipkart, Myntra, Meesho, Ajio, Nykaa, Paytm Mall, Snapdeal | | Date Range | Date Picker | From date - To date | | Search Box | Text Input | Search by product name or order ID |
+Table Columns:
+
+| Column | Data Type | Sortable | Display Format | |--------|-----------|----------|----------------| | Product Name | String | Yes | Full text with tooltip | | Order ID | String | Yes | Platform ID | | Platform | Enum | Yes | Platform name | | Order Account | String | Yes | Email address | | Mediator | String | Yes | Mediator name | | Order Amount | Currency | Yes | ₹X,XXX | | Refund Amount | Currency | Yes | ₹X,XXX | | Profit/Loss | Calculated | Yes | ₹X,XXX (green/red) | | Status | Enum | Yes | Color-coded badge | | Order Date | Date | Yes | DD/MM/YYYY | | Actions | Buttons | No | View, Edit, Delete | #### 3.3.2 Add/Edit Order Form Screen
+Purpose: Create new order or modify existing order
+
+| Field | Type | Required | Validation | Default/Options | |-------|------|----------|------------|-----------------| | Product Name | Text Input | Yes | Min 3 chars | Empty | | Platform | Dropdown | Yes | From platform list | None selected | | Order Account | Dropdown | Yes | Filtered by platform | Auto-filtered list | | Order ID | Text Input | Yes | Alphanumeric | Empty | | Order Amount | Number Input | Yes | > 0, INR format | ₹0 | | Refund Amount | Number Input | Yes | > 0, typically 90% of order | ₹0 | | Product Link | URL Input | No | Valid URL format | Empty | | Mediator | Dropdown | Yes | From mediator list | None selected | | Order Date | Date Picker | Yes | Cannot be future | Today's date | | Delivery Date | Date Picker | No | >= Order Date | Empty | | Refund Form Date | Date Picker | No | >= Delivery Date | Empty | | Current Status | Dropdown | Yes | Valid status | "Ordered" | | Save Button | Submit | - | All validations pass | - | | Cancel Button | Button | - | - | Return to list | #### 3.3.3 Order Details Screen
+Purpose: View complete order information with timeline
+
+Sections:
+
+Order Information Panel:
+
+Product Name (header)
+Order ID
+Platform with icon
+Order Account
+Product Link (clickable)
+Mediator with WhatsApp button
+Financial Summary Panel:
+
+Order Amount: ₹X,XXX
+Refund Amount: ₹X,XXX
+Profit/Loss: ₹X,XXX (colored)
+ROI Percentage: XX%
+Status Timeline:
+
+Visual timeline showing status progression
+Current status highlighted
+Dates for each status change
+Important Dates Panel:
+
+Order Date
+Expected/Actual Delivery
+Refund Form Due Date
+Payment Expected Date
+Action Buttons:
+
+Update Status
+Message Mediator
+Edit Order
+Export Details
+### 3.4 Mediator Management Screens #### 3.4.1 Mediators List Screen
+Purpose: Manage mediators and view their performance
+
+Search Bar:
+
+| Component | Type | Function | |-----------|------|----------| | Search Input | Text | Search by name or phone | | Add Mediator Button | Button | Open add form |
+Mediator Cards Display:
+
+| Element | Display | Calculation | |---------|---------|-------------| | Mediator Name | Bold text | - | | WhatsApp Number | With icon | Clickable to open WhatsApp | | Active Orders | Number badge | Count where Status NOT IN ["Refunded", "Cancelled"] | | Total Investment | ₹X,XX,XXX | Sum of OrderAmounts for active orders | | Expected Returns | ₹X,XX,XXX | Sum of RefundAmounts for active orders | | Success Rate | XX% | (Refunded orders / Total orders) × 100 | | Top Performer Badge | Star icon | Shown for highest active orders | | Recent Orders | List (2 items) | Latest 2 active orders with status | | Actions | Buttons | Edit, WhatsApp, View Orders | #### 3.4.2 Add/Edit Mediator Form
+Purpose: Add new mediator or edit existing
+
+| Field | Type | Required | Validation | Placeholder | |-------|------|----------|------------|-------------| | Mediator Name | Text Input | Yes | Min 3 chars | "Enter mediator name" | | WhatsApp Number | Phone Input | Yes | Valid phone with country code | "+91 9876543210" | | Save Button | Submit | - | All fields valid | - | | Cancel Button | Button | - | - | - | #### 3.4.3 Mediator Orders View
+Purpose: View all orders from specific mediator
+
+Header Statistics:
+
+Active Orders Count
+Total Investment (₹)
+Expected Returns (₹)
+Average Processing Time
+Orders Table: Same as Orders List but filtered for mediator
+
+### 3.5 Account Management Screens #### 3.5.1 Accounts List Screen
+Purpose: Manage e-commerce platform accounts
+
+Filter Bar:
+
+| Filter | Type | Options | |--------|------|---------| | Platform Filter | Dropdown | All platforms | | Search | Text Input | Name, email, phone |
+Account Cards (Sorted by active orders, highest first):
+
+| Element | Display | Note | |---------|---------|------| | Account Name | Bold text | User-defined identifier | | Platform | With icon | Amazon 🛒, Flipkart 🛍️, etc | | Email | With mail icon | Account email | | Phone | With phone icon | Contact number | | Active Orders | Number | Orders not refunded/cancelled | | Total Investment | ₹X,XX,XXX | Sum of active order amounts | | Pending Amount | ₹X,XX,XXX | Awaiting refund | | Expected Refund | ₹X,XX,XXX | Total refund expected | | Star Badge | Icon | Top performer indicator | | Recent Orders | List (2) | With status badges | | Comments | Text preview | Truncated with tooltip | | Actions | Buttons | View, Edit, Delete | #### 3.5.2 Add/Edit Account Form
+Purpose: Add or modify platform account
+
+| Field | Type | Required | Validation | Note | |-------|------|----------|------------|------| | Account Name | Text Input | Yes | Min 3 chars | Identifier like "John's Prime" | | Platform | Dropdown | Yes | From list | Determines available orders | | Email | Email Input | Yes | Valid email | Account login email | | Phone | Phone Input | Yes | Valid phone | With country code | | Password | Password Input | No | Encrypted | Optional, with security warning | | Comments | Textarea | No | Max 500 chars | Additional notes | ### 3.6 Notifications Screen #### 3.6.1 Notifications List Tab
+Purpose: View and manage all notifications
+
+Header Statistics:
+
+| Stat | Display | Color | |------|---------|-------| | Total | Number | Blue | | Unread | Number | Orange | | Critical | Number | Red | | Today | Number | Green |
+Filter Controls:
+
+| Control | Type | Options | |---------|------|---------| | Search | Text Input | Search in title/message | | Type Filter | Dropdown | All, Unread, Critical, Forms Due, Payments | | Mark All Read | Button | Bulk action |
+Notification Cards:
+
+| Element | Display | Interaction | |---------|---------|-------------| | Type Icon | Colored icon | Critical=Red, Warning=Orange, etc | | Title | Bold text | With unread indicator dot | | Message | Full text | - | | Order Details | Collapsible | Order ID, Platform, Amount, Mediator | | Timestamp | Relative time | "2 hours ago" | | Actions | Buttons | Message Mediator, View Order, Mark Read | #### 3.6.2 Settings Tab
+Purpose: Configure notification preferences
+
+| Setting | Type | Default | |---------|------|---------| | Email Notifications | Toggle | On | | Push Notifications | Toggle | On | | SMS Notifications | Toggle | Off | | Order Delivered | Checkbox | Checked | | Refund Form Due | Checkbox | Checked | | Payment Received | Checkbox | Checked | | Order Delayed | Checkbox | Checked | | Weekly Summary | Checkbox | Checked | #### 3.6.3 Activity Logs Tab
+Purpose: View system activity history
+
+| Column | Type | Display | |--------|------|---------| | Activity Icon | Icon | Based on type | | Activity Description | Text | "Order status changed to Delivered" | | Related Order | Link | Clickable order reference | | User | Text | Who performed action | | Timestamp | DateTime | DD/MM/YYYY HH:MM | ### 3.7 Settings Screen #### 3.7.1 Account Settings Section
+Purpose: Manage user profile and security
+
+| Field | Type | Validation | Description | |-------|------|------------|-------------| | Full Name | Text Input | Min 3 chars | User's display name | | Email | Email Input | Valid email | Login email | | Phone | Phone Input | Valid phone | Contact number | | Timezone | Dropdown | From list | Default: Asia/Kolkata | | Language | Dropdown | From list | Default: English | | Currency | Display Only | - | INR (₹) - System Default | | Current Password | Password Input | Required for changes | Verification | | New Password | Password Input | Min 6 chars | Optional | | Confirm Password | Password Input | Match new password | Optional | #### 3.7.2 Data Export Section
+Purpose: Export data in CSV format
+
+Export Options:
+
+| Export Type | Includes | Format | Action | |-------------|----------|--------|--------| | Orders Data | All order fields, status, amounts | CSV | Download button | | Mediators Data | Name, phone, statistics (no orders) | CSV | Download button | | Accounts Data | Account details (no passwords) | CSV | Download button |
+Export Settings:
+
+| Setting | Type | Options | |---------|------|---------| | Date Range | Dropdown | Last 7/30/90 days, This year, All time | | Include Archived | Checkbox | Include cancelled orders | | Format | Radio | CSV, Excel, JSON | #### 3.7.3 Calendar Integration Section
+Purpose: Configure Google Calendar sync
+
+Connection Status Panel:
+
+| Element | Display | State | |---------|---------|-------| | Status Indicator | Icon + Text | Connected/Not Connected | | Connect Button | Button | If not connected | | Disconnect Button | Button | If connected | | Last Sync | Timestamp | If connected |
+Event Creation Settings:
+
+| Setting | Type | Default | Description | |---------|------|---------|-------------| | Auto-create Events | Toggle | On | Create calendar events automatically | | Delivery Reminders | Checkbox | Checked | Event on delivery date | | Refund Form Reminders | Checkbox | Checked | Event on form due date | | Payment Reminders | Checkbox | Checked | Event 15 days after form | | Reminder Days | Dropdown | 15 | Days after form for payment reminder (7-30) | | Default Reminder Time | Time Picker | 09:00 AM | Time for reminders | | Include Order Details | Checkbox | Checked | Add order info to event | | Include Mediator | Checkbox | Checked | Add mediator to event | | Event Prefix | Text Input | "ReviewEarn" | Prefix for all events |
+Event Templates Preview:
+Shows sample calendar events with current settings
+
+## 4. Complete Field Specifications ### 4.1 Order Management Fields | Field Name | Type | Required | Validation | Description | Example | |------------|------|----------|------------|-------------|---------| | productName | String | Yes | Min 3 chars | Name of the product being ordered | "Samsung Galaxy Buds Pro" | | platform | Enum | Yes | From list | E-commerce platform | "Amazon" | | orderAccount | String | Yes | Valid email | Account used for ordering | "john.doe@gmail.com" | | orderId | String | Yes | Alphanumeric | Platform order ID | "AMZ123456789" | | orderAmount | Integer | Yes | > 0 | Amount paid for order (in paise) | 800000 (₹8,000) | | refundAmount | Integer | Yes | > 0, <= orderAmount | Expected refund amount | 720000 (₹7,200) | | productLink | URL | No | Valid URL | Product page link | "https://amazon.in/..." | | mediator | String | Yes | From mediator list | Assigned mediator | "TechDeals Pro" | | orderDate | Date | Yes | <= Today | Date order was placed | "2025-01-15" | | deliveryDate | Date | No | >= orderDate | Expected/actual delivery | "2025-01-20" | | refundFormDate | Date | No | >= deliveryDate | Refund form submission | "2025-01-22" | | currentStatus | Enum | Yes | Valid status | Current order status | "Delivered" | ### 4.2 Mediator Fields | Field Name | Type | Required | Description | Example | |------------|------|----------|-------------|---------| | name | String | Yes | Mediator's business name | "TechDeals Pro" | | whatsappNumber | String | Yes | Contact number with country code | "+91 9876543210" | ### 4.3 Account Fields | Field Name | Type | Required | Description | Example | |------------|------|----------|-------------|---------| | name | String | Yes | Account identifier | "John's Amazon Prime" | | email | String | Yes | Account email | "john.prime@gmail.com" | | phone | String | Yes | Account phone | "+91 9876543210" | | platform | Enum | Yes | Platform type | "Amazon" | | password | String | No | Encrypted password | "••••••••" | | comments | Text | No | Additional notes | "Prime member, fast delivery" | ### 4.4 Platform Enum Values
+
+- Amazon
+- Flipkart
+- Myntra
+- Meesho
+- Ajio
+- Nykaa
+- Paytm Mall
+- Snapdeal
+## 5. Order Status Lifecycle ### 5.1 Status Definitions & Transitions
+
+stateDiagram-v2
+    [*] --> Ordered
+    Ordered --> Delivered
+    Ordered --> Cancelled
+    Delivered --> DeliverablesДone
+    Delivered --> Cancelled
+    DeliverablesДone --> RefundFormDone
+    RefundFormDone --> RemindMediator
+    RefundFormDone --> OverduePassed
+    OverduePassed --> RemindMediator
+    RemindMediator --> Refunded
+    Refunded --> [*]
+    Cancelled --> [*]
+### 5.2 Status Descriptions | Status | Description | User Action Required | System Action | |--------|-------------|---------------------|---------------| | **Ordered** | Order placed on platform | Wait for delivery | Track delivery date | | **Delivered** | Product received | Review product | Send review reminder | | **Deliverables Done** | Review submitted | Submit refund form | Track refund deadline | | **Refund Form Done** | Refund form submitted | Wait for payment | Monitor payment timeline | | **Overdue Passed for Refund Form** | Refund deadline missed | Contact mediator urgently | Generate critical alert | | **Remind Mediator for Payment** | Payment follow-up needed | Message mediator | Provide message template | | **Refunded** | Payment received in ₹ | None - Complete | Archive order | | **Cancelled** | Order cancelled | None | Remove from active list | ### 5.3 Status Transition Rules
+
+Valid Transitions:
+- Ordered → [Delivered, Cancelled]
+- Delivered → [Deliverables Done, Cancelled]
+- Deliverables Done → [Refund Form Done]
+- Refund Form Done → [Remind Mediator for Payment, Overdue Passed]
+- Overdue Passed → [Remind Mediator for Payment]
+- Remind Mediator → [Refunded]
+- Refunded → [No further transitions]
+- Cancelled → [No further transitions]
+## 6. System Calculations & Business Logic (All in INR ₹) ### 6.1 Financial Calculations
+
+All amounts are in Indian Rupees (₹)
+Storage: Integer in paise (1 rupee = 100 paise)
+Display: ₹X,XX,XXX format
+
+Profit per Order = Refund Amount (₹) - Order Amount (₹)
+Success Rate = (Refunded Orders / Total Orders) × 100
+Average Profit Margin = Average(All Profits) / Average(Order Amounts) × 100
+Pending Investment = Sum(Order Amounts where Status != Refunded/Cancelled) in ₹
+Expected Returns = Sum(Refund Amounts where Status != Refunded/Cancelled) in ₹
+### 6.2 Time-Based Calculations
+
+Delivery Time = Delivery Date - Order Date
+Review Submission Time = Refund Form Date - Delivery Date
+Payment Processing Time = Refunded Date - Refund Form Date
+Total Cycle Time = Refunded Date - Order Date
+### 6.3 Mediator Performance Metrics
+
+Active Orders = Count(Orders where Mediator = X AND Status != Refunded/Cancelled)
+Total Investment = Sum(Order Amounts for Mediator X) in ₹
+Success Rate = (Refunded Orders / Total Orders) for Mediator X
+Average Processing Time = Average(Cycle Time) for Mediator X
+## 7. Notification Triggers & Rules ### 7.1 Automatic Notification Generation | Trigger | Condition | Type | Message Template | Action | |---------|-----------|------|------------------|---------| | Delivery Due | deliveryDate = Today | Info | "Order {productName} expected today" | Update status | | Review Reminder | Status = Delivered for 2+ days | Warning | "Please review {productName}" | Submit review | | Refund Form Due | refundFormDate = Today | Warning | "Refund form due today for {productName}" | Submit form | | Refund Overdue | refundFormDate < Today AND Status != Refund Form Done | Critical | "URGENT: Refund form overdue for {productName}" | Contact mediator | | Payment Follow-up | Status = Refund Form Done for 15+ days | Warning | "Follow up payment for {productName}" | Message mediator | | New Order Placed | New order created | Success | "Order {productName} added successfully" | None | | Status Updated | Any status change | Info | "Order {productName} status: {newStatus}" | None | ### 7.2 User-Triggered Notifications
+Manual reminder to mediator
+Payment received confirmation (in ₹)
+Order cancellation notice
+Account changes
+## 8. User Interface Requirements ### 8.1 Dashboard Metrics Display
+
+Top Row (Monthly Stats) - All amounts in ₹:
+- Monthly Earnings: Current month profit in ₹
+- Monthly Orders: Orders this month (count)
+- Completed Reviews: Reviews submitted (count)
+- Pending Refunds: Awaiting payment in ₹
+
+Bottom Row (Lifetime Stats) - All amounts in ₹:
+- Total Investments: All-time spent in ₹
+- Total Orders Count: Lifetime orders (count)
+- Total Pending Refund: Current pending in ₹
+
+Sections:
+- Recent Notifications (Last 5)
+- Recent Orders (Last 3) with amounts in ₹
+- Upcoming Refund Forms (Next 7 days) with amounts in ₹
+### 8.2 Color Coding System
+
+Status Colors:
+- Ordered: Blue (#3B82F6)
+- Delivered: Green (#10B981)
+- Deliverables Done: Purple (#8B5CF6)
+- Refund Form Done: Indigo (#6366F1)
+- Overdue Passed: Red (#EF4444)
+- Remind Mediator: Orange (#F97316)
+- Refunded: Emerald (#10B981)
+- Cancelled: Gray (#6B7280)
+
+Priority Colors:
+- Critical: Red background
+- Warning: Orange background
+- Success: Green background
+- Info: Blue background
+## 8. Data Export Specifications ### 8.1 Orders Export CSV
+
+Headers:
+Order ID, Product Name, Platform, Order Account, Order Amount (₹), Refund Amount (₹), Profit (₹), Mediator, Status, Order Date, Delivery Date, Refund Form Date
+
+Example:
+AMZ123, Samsung Buds, Amazon, john@gmail.com, 8000, 7200, -800, TechDeals Pro, Delivered, 2025-01-15, 2025-01-20, 2025-01-22
+### 8.2 Mediators Export CSV
+
+Headers:
+Mediator Name, WhatsApp Number, Active Orders, Total Investment (₹), Expected Returns (₹), Success Rate
+
+Example:
+TechDeals Pro, +919876543210, 15, 120000, 108000, 85%
+### 8.3 Accounts Export CSV
+
+Headers:
+Account Name, Email, Platform, Phone Number, Active Orders, Total Investment (₹)
+
+Example:
+John's Prime, john@gmail.com, Amazon, +919876543210, 8, 64000
+## 9. WhatsApp Integration Templates ### 9.1 Order Follow-up Message Specifications ### 8.1 Orders Export CSV
+
+Headers:
+Order ID, Product Name, Platform, Order Account, Order Amount, Refund Amount, Profit, Mediator, Status, Order Date, Delivery Date, Refund Form Date
+
+Example:
+AMZ123, Samsung Buds, Amazon, john@gmail.com, 8000, 7200, -800, TechDeals Pro, Delivered, 2025-01-15, 2025-01-20, 2025-01-22
+### 8.2 Mediators Export CSV
+
+Headers:
+Mediator Name, WhatsApp Number, Active Orders, Total Investment, Expected Returns, Success Rate
+
+Example:
+TechDeals Pro, +919876543210, 15, 120000, 108000, 85%
+### 8.3 Accounts Export CSV
+
+Headers:
+Account Name, Email, Platform, Phone Number, Active Orders, Total Investment
+
+Example:
+John's Prime, john@gmail.com, Amazon, +919876543210, 8, 64000
+## 9. WhatsApp Integration Templates ### 9.1 Order Follow-up Message
+
+Hi {mediator_name},
+
+Regarding order: {product_name}
+Order ID: {order_id}
+Platform: {platform}
+Order Amount: ₹{order_amount}
+Refund Amount: ₹{refund_amount}
+Current Status: {status}
+
+Message: Please update on the refund status. The refund form was submitted on {refund_form_date}.
+
+Thank you!
+### 9.2 Payment Reminder
+
+Hi {mediator_name},
+
+Gentle reminder for payment:
+Product: {product_name}
+Order ID: {order_id}
+Refund Amount: ₹{refund_amount}
+Days Pending: {days_since_submission}
+
+Please process the refund at your earliest convenience.
+
+Regards
+## 10. Performance Requirements ### 10.1 Response Times
+Page Load: < 2 seconds
+Search Results: < 500ms
+Export Generation: < 5 seconds for 1000 records
+Status Update: < 1 second
+### 10.2 Capacity Requirements
+Support 100+ concurrent users
+Handle 10,000+ orders in database
+Process 1,000+ notifications daily
+Export up to 5,000 records
+### 10.3 Availability
+99.9% uptime during business hours (9 AM - 9 PM IST)
+Graceful degradation for non-critical features
+Offline capability for viewing data
+## 11. Security Requirements ### 11.1 Data Protection
+Passwords: Encrypted storage (never plain text)
+Sessions: 24-hour timeout
+API: Rate limiting (100 requests/minute)
+Exports: Audit trail for data exports
+### 11.2 Access Control
+User can only see their own orders
+Mediator contact info protected
+Account passwords optional and encrypted
+## 12. Compliance & Constraints ### 12.1 Business Constraints
+Currency: All amounts in INR (₹)
+Refund typically 85-95% of order amount
+Payment follow-up after 15 days standard
+Maximum order cycle: 45 days
+### 12.2 Technical Constraints
+Mobile-responsive design mandatory
+Browser support: Chrome, Firefox, Safari, Edge (latest 2 versions)
+Maximum file size for exports: 10MB
+Session storage for temporary data only
+## 13. Success Metrics ### 13.1 User Success Metrics
+Order completion rate > 80%
+Average cycle time < 30 days
+User engagement: Daily active users > 60%
+Payment success rate > 90%
+### 13.2 System Success Metrics
+Zero data loss
+< 1% error rate
+100% notification delivery
+Accurate calculations (100% accuracy)
+## 14. Error Handling & Edge Cases ### 14.1 Common Error Scenarios
+Duplicate Order ID: System should warn but allow (different platforms may have same IDs)
+Missing Mediator: Cannot create order without mediator
+Invalid Status Transition: Show error with valid next statuses
+Past Delivery Date: Warning but allow (for historical data)
+Refund > Order Amount: Warning but allow (special cases)
+### 14.2 Data Validation Rules
+Email: Valid format with @ and domain
+Phone: 10 digits with country code
+Amounts: Positive integers only
+Dates: Logical sequence (order < delivery < refund)
+URLs: Valid HTTP/HTTPS format
+## 15. Future Enhancements (Out of Current Scope)
+Mobile application (iOS/Android)
+Automated order tracking via platform APIs
+Payment gateway integration
+Multi-language support
+Advanced analytics dashboard
+Mediator rating system
+Bulk order upload
+Automated review submission
+Commission tracking for mediators
+Referral system
+--- ## Appendix A: Glossary | Term | Definition | |------|------------| | Mediator | Third-party who provides product deals and handles refunds | | Review Form | Product review submitted on e-commerce platform | | Refund Form | Application for refund after review submission | | Active Order | Order not in Refunded or Cancelled status | | Cycle Time | Total time from order to refund | | Platform Account | User's account on e-commerce website | ## Appendix B: Assumptions
+Users have basic smartphone/computer literacy
+Stable internet connection available
+Users have accounts on e-commerce platforms
+Mediators respond within reasonable timeframes
+Refund amounts are predetermined before ordering
+---
+Document Version: 1.0
+Last Updated: January 2025
+Status: Final for Implementation
+
+=====
+
+lets analyse this and start building our application functionality by functionality

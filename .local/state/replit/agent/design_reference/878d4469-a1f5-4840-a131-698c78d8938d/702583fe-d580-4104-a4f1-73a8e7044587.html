@@ -1,0 +1,1168 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Reviewer System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    popover: {
+                        DEFAULT: "var(--popover)",
+                        foreground: "var(--popover-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    destructive: {
+                        DEFAULT: "var(--destructive)",
+                        foreground: "var(--destructive-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                },
+                fontFamily: {
+                    sans: ["var(--font-sans)"],
+                }
+            },
+        }
+    };
+    </script>
+    <style>
+        :root {
+            --background: hsl(0 0% 98%);
+            --foreground: hsl(0 0% 15%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(0 0% 15%);
+            --popover: hsl(0 0% 100%);
+            --popover-foreground: hsl(0 0% 15%);
+            --primary: hsl(213 94% 68%);
+            --primary-foreground: hsl(0 0% 100%);
+            --secondary: hsl(0 0% 96%);
+            --secondary-foreground: hsl(0 0% 45%);
+            --muted: hsl(0 0% 96%);
+            --muted-foreground: hsl(0 0% 45%);
+            --accent: hsl(213 94% 68%);
+            --accent-foreground: hsl(0 0% 100%);
+            --destructive: hsl(0 84% 60%);
+            --destructive-foreground: hsl(0 0% 100%);
+            --border: hsl(0 0% 90%);
+            --input: hsl(0 0% 90%);
+            --ring: hsl(213 94% 68%);
+            --radius: 8px;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        
+        .sidebar-item {
+            transition: all 0.2s ease;
+        }
+        
+        .sidebar-item:hover {
+            background-color: var(--muted);
+        }
+        
+        .sidebar-item.active {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
+        
+        .status-badge {
+            @apply px-2 py-1 rounded-md text-xs font-medium;
+        }
+        
+        .status-ordered { @apply bg-blue-50 text-blue-700; }
+        .status-delivered { @apply bg-green-50 text-green-700; }
+        .status-refunded { @apply bg-emerald-50 text-emerald-700; }
+        .status-overdue { @apply bg-red-50 text-red-700; }
+        .status-pending { @apply bg-orange-50 text-orange-700; }
+    </style>
+</head>
+<body class="bg-background text-foreground font-sans">
+    <!-- @COMPONENT: Layout [Main app layout with sidebar] -->
+    <div class="flex min-h-screen">
+        <!-- @COMPONENT: Sidebar [Fixed navigation sidebar] -->
+        <aside class="w-60 bg-card border-r border-border fixed h-full left-0 top-0 overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center space-x-3 mb-8">
+                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                        <i class="fas fa-star text-primary-foreground text-sm"></i>
+                    </div>
+                    <h1 class="text-xl font-semibold">ReviewSystem</h1>
+                </div>
+                
+                <nav class="space-y-1">
+                    <a href="#" onclick="showView('dashboard')" class="sidebar-item active flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium">
+                        <i class="fas fa-chart-line w-5"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" onclick="showView('orders')" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium">
+                        <i class="fas fa-shopping-cart w-5"></i>
+                        <span>Orders</span>
+                    </a>
+                    <a href="#" onclick="showView('mediators')" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium">
+                        <i class="fas fa-users w-5"></i>
+                        <span>Mediators</span>
+                    </a>
+                    <a href="#" onclick="showView('accounts')" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium">
+                        <i class="fas fa-credit-card w-5"></i>
+                        <span>Accounts</span>
+                    </a>
+                    <a href="#" onclick="showView('notifications')" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium">
+                        <i class="fas fa-bell w-5"></i>
+                        <span>Notifications</span>
+                        <span class="bg-destructive text-destructive-foreground text-xs rounded-full px-2 py-0.5 ml-auto">3</span>
+                    </a>
+                    <a href="#" onclick="showView('settings')" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium">
+                        <i class="fas fa-cog w-5"></i>
+                        <span>Settings</span>
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-border">
+                <div class="flex items-center space-x-3">
+                    <!-- A professional headshot of a young Indian businesswoman -->
+                    <img src="https://pixabay.com/get/ged3cd3e0c70c63a98a1ff6c29c3ffc55f970c9a9fabd977f3cd6e0195db5537152991940cdeb0c617017da15186d1f94b682d597371b2f93a8f6849e48c81334_1280.jpg" alt="User avatar" class="w-8 h-8 rounded-full">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium truncate" data-bind="user.name">Priya Sharma</p>
+                        <p class="text-xs text-muted-foreground truncate" data-bind="user.email">priya@example.com</p>
+                    </div>
+                    <button class="text-muted-foreground hover:text-foreground">
+                        <i class="fas fa-sign-out-alt text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+        <!-- @END_COMPONENT: Sidebar -->
+
+        <!-- @COMPONENT: MainContent [Main content area] -->
+        <main class="flex-1 ml-60">
+            <!-- @COMPONENT: Dashboard [Dashboard view] -->
+            <div id="dashboard-view" class="view-content">
+                <!-- Header -->
+                <header class="bg-card border-b border-border px-8 py-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-semibold">Dashboard</h1>
+                            <p class="text-muted-foreground">Welcome back, manage your review orders efficiently</p>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <button onclick="showView('orders')" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
+                                <i class="fas fa-plus mr-2"></i>New Order
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="p-8">
+                    <!-- Quick Action Buttons -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        <button class="bg-card p-6 rounded-xl border border-border hover:border-primary transition-colors text-left card-shadow">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-plus text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium">New Order</h3>
+                                    <p class="text-sm text-muted-foreground">Create new review order</p>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="bg-card p-6 rounded-xl border border-border hover:border-primary transition-colors text-left card-shadow">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-star text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium">Submit Review</h3>
+                                    <p class="text-sm text-muted-foreground">Mark review as complete</p>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="bg-card p-6 rounded-xl border border-border hover:border-primary transition-colors text-left card-shadow">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-money-bill-wave text-orange-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium">Request Refund</h3>
+                                    <p class="text-sm text-muted-foreground">Submit refund form</p>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Monthly Statistics -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-card p-6 rounded-xl border border-border card-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Monthly Earnings</p>
+                                    <p class="text-2xl font-semibold text-green-600" data-bind="monthlyEarnings">₹45,670</p>
+                                    <p class="text-xs text-muted-foreground mt-1">+12% from last month</p>
+                                </div>
+                                <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-arrow-up text-green-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-card p-6 rounded-xl border border-border card-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Active Orders</p>
+                                    <p class="text-2xl font-semibold" data-bind="activeOrders">23</p>
+                                    <p class="text-xs text-muted-foreground mt-1">Pending completion</p>
+                                </div>
+                                <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-shopping-cart text-blue-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-card p-6 rounded-xl border border-border card-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Success Rate</p>
+                                    <p class="text-2xl font-semibold" data-bind="successRate">94.2%</p>
+                                    <p class="text-xs text-muted-foreground mt-1">Order completion rate</p>
+                                </div>
+                                <div class="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-check-circle text-emerald-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-card p-6 rounded-xl border border-border card-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Pending Refunds</p>
+                                    <p class="text-2xl font-semibold text-orange-600" data-bind="pendingRefunds">₹12,450</p>
+                                    <p class="text-xs text-muted-foreground mt-1">Awaiting payment</p>
+                                </div>
+                                <div class="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-clock text-orange-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Orders & Analytics -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Recent Orders -->
+                        <div class="bg-card rounded-xl border border-border p-6 card-shadow">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-lg font-semibold">Recent Orders</h3>
+                                <button onclick="showView('orders')" class="text-primary text-sm font-medium hover:underline">View all</button>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <!-- @MAP: recentOrders.map(order => ( -->
+                                <div class="flex items-center space-x-4 p-4 border border-border rounded-lg">
+                                    <!-- Modern smartphone product photography -->
+                                    <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?ixlib=rb-4.0.3&auto=format&fit=crop&w=80&h=80&q=80" alt="Product" class="w-12 h-12 rounded-lg object-cover">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-medium truncate" data-bind="order.productName">iPhone 15 Pro Max</p>
+                                        <p class="text-sm text-muted-foreground" data-bind="order.platform">Amazon</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-medium" data-bind="order.amount">₹1,24,900</p>
+                                        <span class="status-badge status-delivered" data-bind="order.status">Delivered</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center space-x-4 p-4 border border-border rounded-lg">
+                                    <!-- Fashion sneakers product shot -->
+                                    <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format&fit=crop&w=80&h=80&q=80" alt="Product" class="w-12 h-12 rounded-lg object-cover">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-medium truncate">Nike Air Max 270</p>
+                                        <p class="text-sm text-muted-foreground">Myntra</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-medium">₹8,995</p>
+                                        <span class="status-badge status-pending">Review Pending</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center space-x-4 p-4 border border-border rounded-lg">
+                                    <!-- Beauty skincare products -->
+                                    <img src="https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?ixlib=rb-4.0.3&auto=format&fit=crop&w=80&h=80&q=80" alt="Product" class="w-12 h-12 rounded-lg object-cover">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-medium truncate">Lakme Vitamin C Serum</p>
+                                        <p class="text-sm text-muted-foreground">Nykaa</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-medium">₹1,299</p>
+                                        <span class="status-badge status-refunded">Refunded</span>
+                                    </div>
+                                </div>
+                                <!-- @END_MAP )) -->
+                            </div>
+                        </div>
+
+                        <!-- Analytics Chart -->
+                        <div class="bg-card rounded-xl border border-border p-6 card-shadow">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-lg font-semibold">Earnings Overview</h3>
+                                <select class="text-sm border border-border rounded-lg px-3 py-1">
+                                    <option>Last 6 months</option>
+                                    <option>Last 3 months</option>
+                                    <option>Last month</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Financial analytics dashboard with charts and graphs -->
+                            <div class="relative h-64 bg-muted/20 rounded-lg flex items-center justify-center">
+                                <div class="text-center">
+                                    <i class="fas fa-chart-line text-4xl text-muted-foreground mb-4"></i>
+                                    <p class="text-muted-foreground">Interactive earnings chart would be displayed here</p>
+                                    <p class="text-sm text-muted-foreground mt-2">Showing monthly growth trends and performance metrics</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: Dashboard -->
+
+            <!-- @COMPONENT: OrdersView [Orders management view] -->
+            <div id="orders-view" class="view-content hidden">
+                <header class="bg-card border-b border-border px-8 py-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-semibold">Orders Management</h1>
+                            <p class="text-muted-foreground">Track and manage all your review orders</p>
+                        </div>
+                        <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
+                            <i class="fas fa-plus mr-2"></i>New Order
+                        </button>
+                    </div>
+                </header>
+
+                <div class="p-8">
+                    <!-- Filters -->
+                    <div class="bg-card rounded-xl border border-border p-6 mb-6 card-shadow">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Status</label>
+                                <select class="w-full border border-border rounded-lg px-3 py-2 text-sm">
+                                    <option>All Statuses</option>
+                                    <option>Ordered</option>
+                                    <option>Delivered</option>
+                                    <option>Refunded</option>
+                                    <option>Overdue</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Platform</label>
+                                <select class="w-full border border-border rounded-lg px-3 py-2 text-sm">
+                                    <option>All Platforms</option>
+                                    <option>Amazon</option>
+                                    <option>Flipkart</option>
+                                    <option>Myntra</option>
+                                    <option>Nykaa</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Mediator</label>
+                                <select class="w-full border border-border rounded-lg px-3 py-2 text-sm">
+                                    <option>All Mediators</option>
+                                    <option>Rahul Kumar</option>
+                                    <option>Anjali Mehta</option>
+                                    <option>Suresh Patel</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Search</label>
+                                <div class="relative">
+                                    <input type="text" placeholder="Search orders..." class="w-full border border-border rounded-lg px-3 py-2 pl-10 text-sm">
+                                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Orders Table -->
+                    <div class="bg-card rounded-xl border border-border overflow-hidden card-shadow">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-muted/50 border-b border-border">
+                                    <tr>
+                                        <th class="text-left p-4 font-medium text-sm">Product</th>
+                                        <th class="text-left p-4 font-medium text-sm">Platform</th>
+                                        <th class="text-left p-4 font-medium text-sm">Mediator</th>
+                                        <th class="text-left p-4 font-medium text-sm">Order Amount</th>
+                                        <th class="text-left p-4 font-medium text-sm">Refund Amount</th>
+                                        <th class="text-left p-4 font-medium text-sm">Profit</th>
+                                        <th class="text-left p-4 font-medium text-sm">Status</th>
+                                        <th class="text-left p-4 font-medium text-sm">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-border">
+                                    <!-- @MAP: orders.map(order => ( -->
+                                    <tr class="hover:bg-muted/20">
+                                        <td class="p-4">
+                                            <div class="flex items-center space-x-3">
+                                                <!-- High-end wireless earbuds product shot -->
+                                                <img src="https://images.unsplash.com/photo-1484704849700-f032a568e944?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&h=60&q=80" alt="Product" class="w-10 h-10 rounded-lg object-cover">
+                                                <div>
+                                                    <p class="font-medium" data-bind="order.productName">Apple AirPods Pro 2</p>
+                                                    <p class="text-sm text-muted-foreground" data-bind="order.orderId">AMZ-2024-001</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="p-4">
+                                            <span class="flex items-center space-x-2">
+                                                <i class="fab fa-amazon text-orange-500"></i>
+                                                <span data-bind="order.platform">Amazon</span>
+                                            </span>
+                                        </td>
+                                        <td class="p-4" data-bind="order.mediator">Rahul Kumar</td>
+                                        <td class="p-4 font-medium" data-bind="order.orderAmount">₹24,900</td>
+                                        <td class="p-4 font-medium" data-bind="order.refundAmount">₹22,410</td>
+                                        <td class="p-4 font-medium text-green-600" data-bind="order.profit">₹2,490</td>
+                                        <td class="p-4">
+                                            <span class="status-badge status-delivered" data-bind="order.status">Delivered</span>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="flex items-center space-x-2">
+                                                <button class="text-primary hover:underline text-sm">View</button>
+                                                <button class="text-muted-foreground hover:text-foreground text-sm">Edit</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="hover:bg-muted/20">
+                                        <td class="p-4">
+                                            <div class="flex items-center space-x-3">
+                                                <!-- Luxury wristwatch product photography -->
+                                                <img src="https://images.unsplash.com/photo-1524592094714-0f0654e20314?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&h=60&q=80" alt="Product" class="w-10 h-10 rounded-lg object-cover">
+                                                <div>
+                                                    <p class="font-medium">Fossil Gen 6 Smartwatch</p>
+                                                    <p class="text-sm text-muted-foreground">FLP-2024-045</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="p-4">
+                                            <span class="flex items-center space-x-2">
+                                                <i class="fas fa-shopping-bag text-blue-500"></i>
+                                                <span>Flipkart</span>
+                                            </span>
+                                        </td>
+                                        <td class="p-4">Anjali Mehta</td>
+                                        <td class="p-4 font-medium">₹18,995</td>
+                                        <td class="p-4 font-medium">₹17,095</td>
+                                        <td class="p-4 font-medium text-green-600">₹1,900</td>
+                                        <td class="p-4">
+                                            <span class="status-badge status-pending">Review Pending</span>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="flex items-center space-x-2">
+                                                <button class="text-primary hover:underline text-sm">View</button>
+                                                <button class="text-muted-foreground hover:text-foreground text-sm">Edit</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="hover:bg-muted/20">
+                                        <td class="p-4">
+                                            <div class="flex items-center space-x-3">
+                                                <!-- Premium skincare product line -->
+                                                <img src="https://pixabay.com/get/g8415823db66af137b3d2c21d730d2cf2ed98e0546bb726e21d4cf858266ee0fff687fc652596f769c9668e91d9ec24ea13bda7e705366ccf527709f3ea7d5f36_1280.jpg" alt="Product" class="w-10 h-10 rounded-lg object-cover">
+                                                <div>
+                                                    <p class="font-medium">The Ordinary Niacinamide</p>
+                                                    <p class="text-sm text-muted-foreground">NYK-2024-089</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="p-4">
+                                            <span class="flex items-center space-x-2">
+                                                <i class="fas fa-heart text-pink-500"></i>
+                                                <span>Nykaa</span>
+                                            </span>
+                                        </td>
+                                        <td class="p-4">Suresh Patel</td>
+                                        <td class="p-4 font-medium">₹799</td>
+                                        <td class="p-4 font-medium">₹719</td>
+                                        <td class="p-4 font-medium text-green-600">₹80</td>
+                                        <td class="p-4">
+                                            <span class="status-badge status-refunded">Refunded</span>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="flex items-center space-x-2">
+                                                <button class="text-primary hover:underline text-sm">View</button>
+                                                <button class="text-muted-foreground hover:text-foreground text-sm">Edit</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- @END_MAP )) -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: OrdersView -->
+
+            <!-- @COMPONENT: MediatorsView [Mediators management view] -->
+            <div id="mediators-view" class="view-content hidden">
+                <header class="bg-card border-b border-border px-8 py-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-semibold">Mediators</h1>
+                            <p class="text-muted-foreground">Manage relationships with your mediators</p>
+                        </div>
+                        <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
+                            <i class="fas fa-plus mr-2"></i>Add Mediator
+                        </button>
+                    </div>
+                </header>
+
+                <div class="p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- @MAP: mediators.map(mediator => ( -->
+                        <div class="bg-card rounded-xl border border-border p-6 card-shadow">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <!-- Professional portrait of an Indian businessman -->
+                                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&h=60&q=80" alt="Mediator" class="w-12 h-12 rounded-full object-cover">
+                                    <div>
+                                        <h3 class="font-semibold" data-bind="mediator.name">Rahul Kumar</h3>
+                                        <p class="text-sm text-muted-foreground" data-bind="mediator.phone">+91 9876543210</p>
+                                    </div>
+                                </div>
+                                <button class="text-green-600 hover:text-green-700">
+                                    <i class="fab fa-whatsapp text-xl"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Active Orders</p>
+                                    <p class="text-lg font-semibold" data-bind="mediator.activeOrders">8</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Success Rate</p>
+                                    <p class="text-lg font-semibold text-green-600" data-bind="mediator.successRate">96.5%</p>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-2 mb-4">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-muted-foreground">Total Investment</span>
+                                    <span class="text-sm font-medium" data-bind="mediator.totalInvestment">₹1,24,500</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-muted-foreground">Expected Returns</span>
+                                    <span class="text-sm font-medium" data-bind="mediator.expectedReturns">₹1,12,050</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <button class="flex-1 bg-secondary text-secondary-foreground px-3 py-2 rounded-lg text-sm font-medium hover:opacity-90">
+                                    View Orders
+                                </button>
+                                <button class="text-muted-foreground hover:text-foreground px-3 py-2">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-card rounded-xl border border-border p-6 card-shadow">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <!-- Professional portrait of an Indian businesswoman -->
+                                    <img src="https://pixabay.com/get/g9d332b27c99a1d30c62f9b3937cedb37440eece8e60ce3367e4a668e1989be23f06140f6c1a3d71380aaac633cbd46e120c3b649d2153e5d28567c6bc3c99a79_1280.jpg" alt="Mediator" class="w-12 h-12 rounded-full object-cover">
+                                    <div>
+                                        <h3 class="font-semibold">Anjali Mehta</h3>
+                                        <p class="text-sm text-muted-foreground">+91 9876543211</p>
+                                    </div>
+                                </div>
+                                <button class="text-green-600 hover:text-green-700">
+                                    <i class="fab fa-whatsapp text-xl"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Active Orders</p>
+                                    <p class="text-lg font-semibold">12</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Success Rate</p>
+                                    <p class="text-lg font-semibold text-green-600">92.3%</p>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-2 mb-4">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-muted-foreground">Total Investment</span>
+                                    <span class="text-sm font-medium">₹89,200</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-muted-foreground">Expected Returns</span>
+                                    <span class="text-sm font-medium">₹80,280</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <button class="flex-1 bg-secondary text-secondary-foreground px-3 py-2 rounded-lg text-sm font-medium hover:opacity-90">
+                                    View Orders
+                                </button>
+                                <button class="text-muted-foreground hover:text-foreground px-3 py-2">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-card rounded-xl border border-border p-6 card-shadow">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <!-- Professional portrait of an Indian entrepreneur -->
+                                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&h=60&q=80" alt="Mediator" class="w-12 h-12 rounded-full object-cover">
+                                    <div>
+                                        <h3 class="font-semibold">Suresh Patel</h3>
+                                        <p class="text-sm text-muted-foreground">+91 9876543212</p>
+                                    </div>
+                                </div>
+                                <button class="text-green-600 hover:text-green-700">
+                                    <i class="fab fa-whatsapp text-xl"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Active Orders</p>
+                                    <p class="text-lg font-semibold">3</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Success Rate</p>
+                                    <p class="text-lg font-semibold text-green-600">98.1%</p>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-2 mb-4">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-muted-foreground">Total Investment</span>
+                                    <span class="text-sm font-medium">₹45,600</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-muted-foreground">Expected Returns</span>
+                                    <span class="text-sm font-medium">₹41,040</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <button class="flex-1 bg-secondary text-secondary-foreground px-3 py-2 rounded-lg text-sm font-medium hover:opacity-90">
+                                    View Orders
+                                </button>
+                                <button class="text-muted-foreground hover:text-foreground px-3 py-2">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: MediatorsView -->
+
+            <!-- @COMPONENT: AccountsView [E-commerce accounts management] -->
+            <div id="accounts-view" class="view-content hidden">
+                <header class="bg-card border-b border-border px-8 py-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-semibold">E-commerce Accounts</h1>
+                            <p class="text-muted-foreground">Manage your platform accounts for orders</p>
+                        </div>
+                        <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
+                            <i class="fas fa-plus mr-2"></i>Add Account
+                        </button>
+                    </div>
+                </header>
+
+                <div class="p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- @MAP: accounts.map(account => ( -->
+                        <div class="bg-card rounded-xl border border-border p-6 card-shadow">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-amazon text-orange-500"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold" data-bind="account.name">Amazon Prime</h3>
+                                        <p class="text-sm text-muted-foreground" data-bind="account.platform">Amazon</p>
+                                    </div>
+                                </div>
+                                <button class="text-muted-foreground hover:text-foreground">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-envelope text-muted-foreground text-sm"></i>
+                                    <span class="text-sm" data-bind="account.email">priya.amazon@gmail.com</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-phone text-muted-foreground text-sm"></i>
+                                    <span class="text-sm" data-bind="account.phone">+91 9876543210</span>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Active Orders</p>
+                                    <p class="text-lg font-semibold" data-bind="account.activeOrders">5</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Pending Amount</p>
+                                    <p class="text-lg font-semibold text-orange-600" data-bind="account.pendingAmount">₹8,450</p>
+                                </div>
+                            </div>
+                            
+                            <button class="w-full bg-secondary text-secondary-foreground px-3 py-2 rounded-lg text-sm font-medium hover:opacity-90">
+                                View Orders
+                            </button>
+                        </div>
+                        
+                        <div class="bg-card rounded-xl border border-border p-6 card-shadow">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-shopping-bag text-blue-500"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold">Flipkart Plus</h3>
+                                        <p class="text-sm text-muted-foreground">Flipkart</p>
+                                    </div>
+                                </div>
+                                <button class="text-muted-foreground hover:text-foreground">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-envelope text-muted-foreground text-sm"></i>
+                                    <span class="text-sm">priya.flipkart@gmail.com</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-phone text-muted-foreground text-sm"></i>
+                                    <span class="text-sm">+91 9876543210</span>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Active Orders</p>
+                                    <p class="text-lg font-semibold">8</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Pending Amount</p>
+                                    <p class="text-lg font-semibold text-orange-600">₹12,890</p>
+                                </div>
+                            </div>
+                            
+                            <button class="w-full bg-secondary text-secondary-foreground px-3 py-2 rounded-lg text-sm font-medium hover:opacity-90">
+                                View Orders
+                            </button>
+                        </div>
+                        
+                        <div class="bg-card rounded-xl border border-border p-6 card-shadow">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-pink-50 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-heart text-pink-500"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold">Nykaa Beauty</h3>
+                                        <p class="text-sm text-muted-foreground">Nykaa</p>
+                                    </div>
+                                </div>
+                                <button class="text-muted-foreground hover:text-foreground">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-envelope text-muted-foreground text-sm"></i>
+                                    <span class="text-sm">priya.nykaa@gmail.com</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-phone text-muted-foreground text-sm"></i>
+                                    <span class="text-sm">+91 9876543210</span>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Active Orders</p>
+                                    <p class="text-lg font-semibold">2</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Pending Amount</p>
+                                    <p class="text-lg font-semibold text-orange-600">₹2,150</p>
+                                </div>
+                            </div>
+                            
+                            <button class="w-full bg-secondary text-secondary-foreground px-3 py-2 rounded-lg text-sm font-medium hover:opacity-90">
+                                View Orders
+                            </button>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: AccountsView -->
+
+            <!-- @COMPONENT: NotificationsView [Notifications management] -->
+            <div id="notifications-view" class="view-content hidden">
+                <header class="bg-card border-b border-border px-8 py-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-semibold">Notifications</h1>
+                            <p class="text-muted-foreground">Stay updated with order status and payment alerts</p>
+                        </div>
+                        <button class="text-primary text-sm font-medium hover:underline">
+                            Mark all as read
+                        </button>
+                    </div>
+                </header>
+
+                <div class="p-8">
+                    <!-- Notification Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-card p-6 rounded-xl border border-border card-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Total</p>
+                                    <p class="text-2xl font-semibold">47</p>
+                                </div>
+                                <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-bell text-blue-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-card p-6 rounded-xl border border-border card-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Unread</p>
+                                    <p class="text-2xl font-semibold text-orange-600">3</p>
+                                </div>
+                                <div class="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-circle text-orange-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-card p-6 rounded-xl border border-border card-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Critical</p>
+                                    <p class="text-2xl font-semibold text-red-600">1</p>
+                                </div>
+                                <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-exclamation-triangle text-red-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-card p-6 rounded-xl border border-border card-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Today</p>
+                                    <p class="text-2xl font-semibold text-green-600">5</p>
+                                </div>
+                                <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-calendar-day text-green-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications List -->
+                    <div class="bg-card rounded-xl border border-border card-shadow">
+                        <div class="p-6 border-b border-border">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold">Recent Notifications</h3>
+                                <div class="flex items-center space-x-4">
+                                    <select class="border border-border rounded-lg px-3 py-1 text-sm">
+                                        <option>All Types</option>
+                                        <option>Critical</option>
+                                        <option>Payments</option>
+                                        <option>Orders</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="divide-y divide-border">
+                            <!-- @MAP: notifications.map(notification => ( -->
+                            <div class="p-6 hover:bg-muted/20">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-exclamation-triangle text-red-600"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <h4 class="font-medium text-sm">Payment Overdue</h4>
+                                            <span class="text-xs text-muted-foreground">2 hours ago</span>
+                                        </div>
+                                        <p class="text-sm text-muted-foreground mb-2">Refund for order AMZ-2024-001 is now 3 days overdue. Please follow up with mediator Rahul Kumar.</p>
+                                        <div class="flex items-center space-x-3">
+                                            <button class="text-primary text-xs font-medium hover:underline">Message Mediator</button>
+                                            <button class="text-muted-foreground text-xs hover:text-foreground">View Order</button>
+                                            <button class="text-muted-foreground text-xs hover:text-foreground">Mark Read</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-6 hover:bg-muted/20">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-check-circle text-green-600"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <h4 class="font-medium text-sm">Payment Received</h4>
+                                            <span class="text-xs text-muted-foreground">1 day ago</span>
+                                        </div>
+                                        <p class="text-sm text-muted-foreground mb-2">Refund of ₹22,410 received for order FLP-2024-045 from mediator Anjali Mehta.</p>
+                                        <div class="flex items-center space-x-3">
+                                            <button class="text-muted-foreground text-xs hover:text-foreground">View Order</button>
+                                            <button class="text-muted-foreground text-xs hover:text-foreground">Mark Read</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-6 hover:bg-muted/20">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-truck text-blue-600"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <h4 class="font-medium text-sm">Order Delivered</h4>
+                                            <span class="text-xs text-muted-foreground">2 days ago</span>
+                                        </div>
+                                        <p class="text-sm text-muted-foreground mb-2">Order NYK-2024-089 has been delivered. Please submit your review within 24 hours.</p>
+                                        <div class="flex items-center space-x-3">
+                                            <button class="text-primary text-xs font-medium hover:underline">Submit Review</button>
+                                            <button class="text-muted-foreground text-xs hover:text-foreground">View Order</button>
+                                            <button class="text-muted-foreground text-xs hover:text-foreground">Mark Read</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: NotificationsView -->
+
+            <!-- @COMPONENT: SettingsView [Settings and profile management] -->
+            <div id="settings-view" class="view-content hidden">
+                <header class="bg-card border-b border-border px-8 py-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-semibold">Settings</h1>
+                            <p class="text-muted-foreground">Manage your account preferences and security</p>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="p-8">
+                    <div class="max-w-2xl">
+                        <!-- Profile Settings -->
+                        <div class="bg-card rounded-xl border border-border p-6 mb-6 card-shadow">
+                            <h3 class="text-lg font-semibold mb-6">Profile Information</h3>
+                            
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">Full Name</label>
+                                        <input type="text" value="Priya Sharma" class="w-full border border-border rounded-lg px-3 py-2 text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">Email</label>
+                                        <input type="email" value="priya@example.com" class="w-full border border-border rounded-lg px-3 py-2 text-sm">
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">Phone</label>
+                                        <input type="tel" value="+91 9876543210" class="w-full border border-border rounded-lg px-3 py-2 text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">Timezone</label>
+                                        <select class="w-full border border-border rounded-lg px-3 py-2 text-sm">
+                                            <option>Asia/Kolkata (GMT+5:30)</option>
+                                            <option>Asia/Mumbai (GMT+5:30)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end mt-6">
+                                <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Security Settings -->
+                        <div class="bg-card rounded-xl border border-border p-6 mb-6 card-shadow">
+                            <h3 class="text-lg font-semibold mb-6">Security</h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Current Password</label>
+                                    <input type="password" placeholder="Enter current password" class="w-full border border-border rounded-lg px-3 py-2 text-sm">
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">New Password</label>
+                                        <input type="password" placeholder="Enter new password" class="w-full border border-border rounded-lg px-3 py-2 text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">Confirm Password</label>
+                                        <input type="password" placeholder="Confirm new password" class="w-full border border-border rounded-lg px-3 py-2 text-sm">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end mt-6">
+                                <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90">
+                                    Update Password
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Notification Preferences -->
+                        <div class="bg-card rounded-xl border border-border p-6 card-shadow">
+                            <h3 class="text-lg font-semibold mb-6">Notification Preferences</h3>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="font-medium">Email Notifications</h4>
+                                        <p class="text-sm text-muted-foreground">Receive order updates via email</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    </label>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="font-medium">Push Notifications</h4>
+                                        <p class="text-sm text-muted-foreground">Receive browser notifications</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    </label>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="font-medium">Payment Reminders</h4>
+                                        <p class="text-sm text-muted-foreground">Get notified about overdue payments</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: SettingsView -->
+        </main>
+        <!-- @END_COMPONENT: MainContent -->
+    </div>
+    <!-- @END_COMPONENT: Layout -->
+
+    <script>
+        // Simple view switching functionality
+        (function() {
+            // TODO: Implement proper React-based routing and state management
+            function showView(viewId) {
+                // Hide all views
+                const views = document.querySelectorAll('.view-content');
+                views.forEach(view => view.classList.add('hidden'));
+                
+                // Show selected view
+                const targetView = document.getElementById(viewId + '-view');
+                if (targetView) {
+                    targetView.classList.remove('hidden');
+                }
+                
+                // Update sidebar active state
+                const sidebarItems = document.querySelectorAll('.sidebar-item');
+                sidebarItems.forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Set active sidebar item
+                const activeItem = document.querySelector(`[onclick="showView('${viewId}')"]`);
+                if (activeItem) {
+                    activeItem.classList.add('active');
+                }
+            }
+            
+            // Make function globally available
+            window.showView = showView;
+            
+            // Initialize with dashboard view
+            showView('dashboard');
+        })();
+    </script>
+</body>
+</html>
