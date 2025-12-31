@@ -9,6 +9,11 @@ import { pool } from "./db";
 import { storage } from "./storage";
 import type { User } from "@shared/schema";
 
+// Get base URL from environment or use localhost for development
+const getBaseUrl = () => {
+  return process.env.BASE_URL || 'http://localhost:5000';
+};
+
 // Session configuration
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
@@ -61,7 +66,7 @@ export async function setupAuth(app: express.Express) {
   passport.use(new GoogleStrategy({
     clientID: googleClientId,
     clientSecret: googleClientSecret,
-    callbackURL: "http://localhost:5000/api/auth/google/callback"
+    callbackURL: `${getBaseUrl()}/api/auth/google/callback`
   },
   async (accessToken: string, refreshToken: string, profile: any, done: any) => {
     try {
@@ -207,7 +212,7 @@ export async function setupAuth(app: express.Express) {
       const oauth2Client = new OAuth2Client(
         process.env.GOOGLE_CLIENT_ID,
         process.env.GOOGLE_CLIENT_SECRET,
-        'http://localhost:5000/api/calendar/auth/callback'
+        `${getBaseUrl()}/api/calendar/auth/callback`
       );
 
       const scopes = [
@@ -248,7 +253,7 @@ export async function setupAuth(app: express.Express) {
       const oauth2Client = new OAuth2Client(
         process.env.GOOGLE_CLIENT_ID,
         process.env.GOOGLE_CLIENT_SECRET,
-        'http://localhost:5000/api/calendar/auth/callback'
+        `${getBaseUrl()}/api/calendar/auth/callback`
       );
 
       // Exchange authorization code for tokens

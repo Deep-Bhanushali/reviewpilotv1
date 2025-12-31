@@ -3,13 +3,10 @@ import { google } from 'googleapis';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-// Get the current domain from the request or use localhost for development
-const getRedirectUri = (req?: any) => {
-  if (process.env.NODE_ENV === 'production' && req) {
-    const host = req.get('host');
-    return `https://${host}/api/auth/google/callback`;
-  }
-  return 'http://localhost:5000/api/auth/google/callback';
+
+// Get base URL from environment or use localhost for development
+const getBaseUrl = () => {
+  return process.env.BASE_URL || 'http://localhost:5000';
 };
 
 export class GoogleCalendarService {
@@ -20,13 +17,13 @@ export class GoogleCalendarService {
     this.oauth2Client = new OAuth2Client(
       GOOGLE_CLIENT_ID,
       GOOGLE_CLIENT_SECRET,
-      'http://localhost:5000/api/auth/google/callback'
+      `${getBaseUrl()}/api/auth/google/callback`
     );
   }
 
-  getAuthUrl(userId: string, req?: any): string {
+  getAuthUrl(userId: string): string {
     // Update OAuth2Client with correct redirect URI
-    const redirectUri = getRedirectUri(req);
+    const redirectUri = `${getBaseUrl()}/api/auth/google/callback`;
     this.oauth2Client = new OAuth2Client(
       GOOGLE_CLIENT_ID,
       GOOGLE_CLIENT_SECRET,
