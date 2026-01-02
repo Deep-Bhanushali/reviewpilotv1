@@ -366,15 +366,46 @@ export function OrdersTable({
                         {order.orderId}
                       </p>
                     </div>
-                    <Badge
-                      className={`${
-                        statusColors[
-                          order.currentStatus as keyof typeof statusColors
-                        ]
-                      } text-[10px] shrink-0 ml-2`}
+                    <Select
+                      value={order.currentStatus}
+                      onValueChange={(value) => {
+                        updateStatusMutation.mutate({
+                          orderId: order.id,
+                          newStatus: value,
+                        });
+                      }}
+                      disabled={updateStatusMutation.isPending}
                     >
-                      {order.currentStatus}
-                    </Badge>
+                      <SelectTrigger className="w-auto h-auto p-1">
+                        <SelectValue>
+                          <Badge
+                            className={
+                              statusColors[
+                                order.currentStatus as keyof typeof statusColors
+                              ]
+                            }
+                            data-testid={`order-status-${order.id}`}
+                          >
+                            {order.currentStatus}
+                          </Badge>
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {orderStatuses.map((status) => (
+                          <SelectItem key={status} value={status}>
+                            <Badge
+                              className={
+                                statusColors[
+                                  status as keyof typeof statusColors
+                                ]
+                              }
+                            >
+                              {status}
+                            </Badge>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* Info Grid */}

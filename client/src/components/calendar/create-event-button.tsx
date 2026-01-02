@@ -74,14 +74,14 @@ export function CreateEventButton({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
+        <Button
           disabled={disabled}
           variant="outline"
           size="sm"
           data-testid={`button-add-calendar-${order.id}`}
         >
           <Calendar className="w-4 h-4" />
-          Add to Calendar
+          <span className="hidden sm:inline">Add to Calendar</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
