@@ -457,13 +457,13 @@ export function OrdersTable({
                   </div>
 
                   {/* Profit/Loss */}
-                  <div className="flex items-center justify-between pt-2 border-t">
-                    <div>
+                  <div className="pt-2 border-t">
+                    <div className="flex items-center justify-between mb-3">
                       <span className="text-muted-foreground text-xs">
                         Profit/Loss
                       </span>
                       <p
-                        className={`font-semibold ${
+                        className={`font-semibold text-sm ${
                           profit.isPositive ? "text-green-600" : "text-red-600"
                         }`}
                         data-testid={`order-profit-${order.id}`}
@@ -472,8 +472,10 @@ export function OrdersTable({
                         {formatCurrency(Math.abs(profit.amount))}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <WhatsappLink order={order} />
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-2">
+                        <WhatsappLink order={order} />
                       <Button
                         variant="outline"
                         size="sm"
@@ -491,7 +493,7 @@ export function OrdersTable({
                         onClick={() => onEditOrder?.(order)}
                         data-testid={`button-edit-${order.id}`}
                       >
-                        <Edit2 className="w-4 h-4" />
+                        <Edit2 className="w-4 h-4 mx-auto" />
                       </Button>
                       <CreateEventButton order={order} />
                     </div>

@@ -183,7 +183,7 @@ export default function Sidebar() {
       </header>
 
       {/* Mobile Bottom Navigation */}
-      <BottomNav />
+      {/* <BottomNav /> */}
     </>
   );
 }
