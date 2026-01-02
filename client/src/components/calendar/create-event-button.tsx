@@ -80,7 +80,7 @@ export function CreateEventButton({
           size="sm"
           data-testid={`button-add-calendar-${order.id}`}
         >
-          <Calendar className="w-4 h-4 mr-2" />
+          <Calendar className="w-4 h-4" />
           Add to Calendar
         </Button>
       </DropdownMenuTrigger>

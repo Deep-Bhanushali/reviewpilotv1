@@ -100,7 +100,7 @@ export default function Orders() {
     <MainLayout>
       <header className="bg-card border-b border-border px-4 lg:px-8 py-4 lg:py-6">
         <div className="flex items-center justify-between">
-          <div className="flex-1 min-w-0">
+          <div className=" min-w-0">
             <h1 className="text-xl lg:text-2xl font-semibold" data-testid="page-title">Orders Management</h1>
             <p className="text-sm text-muted-foreground hidden sm:block">Track and manage all your review orders</p>
           </div>

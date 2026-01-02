@@ -58,7 +58,7 @@ export function WhatsappLink({ order }: WhatsappLinkProps) {
   return (
     <div className="flex items-center gap-2">
       <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-        <SelectTrigger className="w-[140px] h-8 text-xs">
+        <SelectTrigger className="w-auto h-8 text-xs">
           <SelectValue placeholder="Message type" />
         </SelectTrigger>
         <SelectContent>
