@@ -51,6 +51,7 @@ interface OrdersTableProps {
   isLoading?: boolean;
   onNewOrder?: () => void;
   onEditOrder?: (order: OrderWithRelations) => void;
+  initialStatusFilter?: string;
 }
 
 const statusColors = {
@@ -92,11 +93,12 @@ export function OrdersTable({
   isLoading,
   onNewOrder,
   onEditOrder,
+  initialStatusFilter,
 }: OrdersTableProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState({
-    status: "",
+    status: initialStatusFilter || "",
     platform: "",
     mediatorId: "",
     search: "",

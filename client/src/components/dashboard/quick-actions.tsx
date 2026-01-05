@@ -17,7 +17,7 @@ const actions = [
     icon: Star,
     iconColor: "text-green-600",
     iconBg: "bg-green-50",
-    href: "/orders?filter=delivered",
+    href: "/orders?filter=Delivered",
   },
   {
     title: "Request Refund",
@@ -25,7 +25,7 @@ const actions = [
     icon: DollarSign,
     iconColor: "text-orange-600",
     iconBg: "bg-orange-50",
-    href: "/orders?filter=deliverables-done",
+    href: "/orders?filter=Remind Mediator for Payment",
   },
 ];
 

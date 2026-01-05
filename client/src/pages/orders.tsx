@@ -7,12 +7,18 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, ArrowLeft } from "lucide-react";
+import { useSearch } from "wouter";
 
 export default function Orders() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading } = useAuth();
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [editingOrder, setEditingOrder] = useState<any>(null);
+
+  // Read URL query parameters for initial filter
+  const searchParams = useSearch();
+  const searchParamsObj = new URLSearchParams(searchParams);
+  const initialStatusFilter = searchParamsObj.get('filter') || '';
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -117,12 +123,13 @@ export default function Orders() {
       </header>
 
       <div className="p-4 lg:p-8">
-        <OrdersTable 
+        <OrdersTable
           orders={orders as any[]}
           mediators={mediators as any[]}
           isLoading={ordersLoading}
           onNewOrder={() => setShowOrderForm(true)}
           onEditOrder={(order) => setEditingOrder(order)}
+          initialStatusFilter={initialStatusFilter}
         />
       </div>
     </MainLayout>
