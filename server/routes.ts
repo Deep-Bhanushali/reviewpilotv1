@@ -1015,6 +1015,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/export/bank-accounts", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const bankAccounts = await storage.getBankAccounts(userId);
+
+      // Calculate pending amounts for each bank account
+      const { db } = await import('./db');
+      const { orders, bankAccounts: ba } = await import('@shared/schema');
+      const { eq, and, isNotNull, sql, count } = await import('drizzle-orm');
+
+      const pendingAmountsResult = await db
+        .select({
+          bankAccountId: orders.bankAccountId,
+          pendingAmount: sql<number>`COALESCE(SUM(${orders.refundAmount}), 0)`,
+          orderCount: count(),
+        })
+        .from(orders)
+        .where(
+          and(
+            eq(orders.userId, userId),
+            isNotNull(orders.bankAccountId),
+            sql`${orders.currentStatus} NOT IN ('Refunded', 'Cancelled')`
+          )
+        )
+        .groupBy(orders.bankAccountId);
+
+      // Create a map for easy lookup
+      const pendingMap = new Map();
+      pendingAmountsResult.forEach((item: any) => {
+        pendingMap.set(item.bankAccountId, {
+          amount: item.pendingAmount,
+          count: item.orderCount
+        });
+      });
+
+      const csvHeaders = ['Account Name', 'Account Number', 'Pending Amount (₹)', 'Pending Orders', 'Created Date'].join(',');
+      const csvRows = bankAccounts.map((bankAccount: any) => {
+        const pending = pendingMap.get(bankAccount.id) || { amount: 0, count: 0 };
+        return [
+          `"${bankAccount.accountName}"`,
+          `"${bankAccount.accountNumber}"`,
+          (pending.amount / 100).toFixed(2), // Convert paise to rupees
+          pending.count,
+          bankAccount.createdAt?.toISOString().split('T')[0] || ''
+        ].join(',');
+      });
+
+      const csvContent = [csvHeaders, ...csvRows].join('\n');
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename="bank-accounts.csv"');
+      res.send(csvContent);
+    } catch (error) {
+      console.error("Error exporting bank accounts:", error);
+      res.status(500).json({ message: "Failed to export bank accounts" });
+    }
+  });
+
   // Import routes
   app.post("/api/import/orders", isAuthenticated, async (req: any, res) => {
     try {

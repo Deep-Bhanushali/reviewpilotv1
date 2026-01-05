@@ -357,7 +357,7 @@ export type OrderWithRelations = Order & {
 };
 
 export type NotificationWithOrder = Notification & {
-  order?: Order;
+  order?: OrderWithRelations;
 };
 
 export type ActivityLogWithOrder = ActivityLog & {

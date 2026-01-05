@@ -1295,14 +1295,14 @@ export default function Settings() {
                     <Download className="w-4 h-4 mr-2" />
                     Export Data
                   </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="text-center">
                       <h5 className="font-medium mb-2">Orders Data</h5>
                       <p className="text-sm text-muted-foreground mb-4">
                         Export all your order data including status, amounts, and mediator information
                       </p>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => handleExport('orders')}
                         data-testid="button-export-orders"
                       >
@@ -1310,14 +1310,14 @@ export default function Settings() {
                         Export Orders
                       </Button>
                     </div>
-                    
+
                     <div className="text-center">
                       <h5 className="font-medium mb-2">Mediators Data</h5>
                       <p className="text-sm text-muted-foreground mb-4">
                         Export mediator information and performance statistics
                       </p>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => handleExport('mediators')}
                         data-testid="button-export-mediators"
                       >
@@ -1325,19 +1325,34 @@ export default function Settings() {
                         Export Mediators
                       </Button>
                     </div>
-                    
+
                     <div className="text-center">
                       <h5 className="font-medium mb-2">Accounts Data</h5>
                       <p className="text-sm text-muted-foreground mb-4">
                         Export your e-commerce account information and activity
                       </p>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => handleExport('accounts')}
                         data-testid="button-export-accounts"
                       >
                         <Download className="w-4 h-4 mr-2" />
                         Export Accounts
+                      </Button>
+                    </div>
+
+                    <div className="text-center">
+                      <h5 className="font-medium mb-2">Bank Accounts Data</h5>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Export your bank account information for refunds
+                      </p>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleExport('bank-accounts')}
+                        data-testid="button-export-bank-accounts"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Export Bank Accounts
                       </Button>
                     </div>
                   </div>

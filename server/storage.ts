@@ -682,15 +682,38 @@ export class DatabaseStorage implements IStorage {
           createdAt: orders.createdAt,
           updatedAt: orders.updatedAt,
         },
+        mediator: {
+          id: mediators.id,
+          userId: mediators.userId,
+          name: mediators.name,
+          whatsappNumber: mediators.whatsappNumber,
+          createdAt: mediators.createdAt,
+          updatedAt: mediators.updatedAt,
+        },
+        account: {
+          id: accounts.id,
+          userId: accounts.userId,
+          platform: accounts.platform,
+          name: accounts.name,
+          email: accounts.email,
+          createdAt: accounts.createdAt,
+          updatedAt: accounts.updatedAt,
+        },
       })
       .from(notifications)
       .leftJoin(orders, eq(notifications.orderId, orders.id))
+      .leftJoin(mediators, eq(orders.mediatorId, mediators.id))
+      .leftJoin(accounts, eq(orders.accountId, accounts.id))
       .where(eq(notifications.userId, userId))
       .orderBy(desc(notifications.createdAt));
 
     return result.map(row => ({
       ...row,
-      order: row.order || undefined,
+      order: row.order ? {
+        ...row.order,
+        mediator: row.mediator,
+        account: row.account,
+      } : undefined,
     })) as any;
   }
 
